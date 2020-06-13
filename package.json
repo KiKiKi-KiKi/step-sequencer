@@ -42,6 +42,8 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "normalize.css": "^8.0.1"
+    "jquery": "^3.5.1",
+    "normalize.css": "^8.0.1",
+    "tone": "^13.8.25"
   }
 }
