@@ -6,8 +6,6 @@ const PAD_COLS = 8;
 const PAD_ROWS = 5;
 const SCORE_MAP = Array.from({ length: PAD_COLS }, (_) => ({ code: Array(PAD_ROWS).fill(null) }));
 
-console.log(SCORE_MAP);
-
 const DEFAULT_BPM = 120;
 const BASE_BEATE = '16n';
 const NOTES = ['E4', 'D4', 'G4', 'B4', 'C5'].reverse();
@@ -44,7 +42,12 @@ function setBPM(bpm = DEFAULT_BPM) {
 function playPadEventInit(onUpdatePlayer) {
   let count = 0;
   let time = 0;
+  let first = true;
   Transport.scheduleRepeat((now) => {
+    if (first) {
+      time = now;
+      first = false;
+    }
     const elapsed = now - time;
     onUpdatePlayer(count, elapsed);
     count += 1;
@@ -53,18 +56,33 @@ function playPadEventInit(onUpdatePlayer) {
       time = now;
     }
   }, BASE_BEATE);
+
+  return {
+    reset() {
+      count = 0;
+      time = 0;
+      first = true;
+    }
+  }
 }
 
-function updatePlayer() {
-  const timeer = document.getElementById('time');
+function updatePlayerInit() {
+  const timer = document.getElementById('time');
   const padColumns = [...document.getElementById('stepSequencer').querySelectorAll('.column')];
 
   let prevIndex = 0;
-  return (index, time) => {
-    timeer.textContent = time.toFixed(2).replace('.', ':');
-    padColumns[prevIndex].classList.remove('highlight');
-    padColumns[index].classList.add('highlight');
-    prevIndex = index;
+  return {
+    update(index, time) {
+      timer.textContent = time.toFixed(2).replace('.', ':');
+      padColumns[prevIndex].classList.remove('highlight');
+      padColumns[index].classList.add('highlight');
+      prevIndex = index;
+    },
+    reset() {
+      padColumns[prevIndex].classList.remove('highlight');
+      prevIndex = 0;
+      timer.textContent = '0:00';
+    }
   }
 }
 
@@ -87,15 +105,24 @@ function padButtonsInit() {
 function bpmControllerInit() {
   const $bpmController = $('#bpm');
   const label = $('#bpmLabel')[0];
+  label.textContent = DEFAULT_BPM;
 
   $bpmController.on('change.bpm', (e) => {
     const bpm = e.target.value;
     label.textContent = bpm;
     setBPM(bpm);
   });
+
+  return {
+    reset() {
+      document.getElementById('bpm').value = DEFAULT_BPM;
+      document.getElementById('bpmLabel').textContent = DEFAULT_BPM;
+      setBPM(DEFAULT_BPM);
+    }
+  };
 }
 
-function playBtnInit() {
+function playBtnInit({ reset }) {
   let onPlay = false;
   const label = ['STOP', 'PLAY'];
   const $playBtn = $('#playBtn');
@@ -103,7 +130,7 @@ function playBtnInit() {
   $playBtn.on('click.onPlay', () => {
     if (onPlay) {
       Transport.stop();
-      resetPlayer();
+      reset();
     } else {
       Transport.start();
     }
@@ -112,21 +139,18 @@ function playBtnInit() {
   });
 }
 
-function resetPlayer() {
-  const timer = document.getElementById('time');
-  timer.textContent = '0:00';
-  document.getElementById('bpm').value = DEFAULT_BPM;
-  document.getElementById('bpmLabel').textContent = DEFAULT_BPM;
-  setBPM(DEFAULT_BPM);
-}
-
 function init() {
-  playPadEventInit(updatePlayer());
+  const { update, reset: PlayerReset } = updatePlayerInit();
+  const { reset: PlayCountReset } = playPadEventInit(update);
+  const onReset = () => {
+    PlayerReset();
+    PlayCountReset();
+  };
   setupSequence();
 
   padButtonsInit();
   bpmControllerInit();
-  playBtnInit();
-  resetPlayer();
+  playBtnInit({ reset: onReset });
+  onReset();
 }
 init();
