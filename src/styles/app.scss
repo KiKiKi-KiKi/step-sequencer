@@ -1,1 +1,103 @@
 @import "~normalize.css/normalize.css";
+
+* {
+  box-sizing: border-box;
+}
+
+.align-r {
+  text-align: right;
+}
+
+.container {
+  margin: auto;
+  max-width: 3rem * 8 + 1rem;
+}
+
+h1 {
+  color: #a1cdcf;
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.controller {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: .5rem;
+}
+
+.time {
+  display: inline-block;
+  text-align: right;
+  width: 3.5rem;
+}
+
+.stepSequencer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+
+  .column {
+    display: flex;
+    flex-direction: column;
+  }
+  .row {
+    display: block;
+    margin: 1px;
+    width: 3rem;
+    height: 3rem;
+  }
+  .checkbox {
+    display: none;
+  }
+  .button {
+    display: block;
+    background: #f1f1f1;
+    border: 1px solid transparent;
+    border-radius: .2em;
+    width: 100%;
+    height: 100%;
+  }
+
+  .row:nth-child(1) {
+    .checkbox:checked + .button {
+      background-color: #a1cdcf;
+    }
+  }
+  .row:nth-child(2) {
+    .checkbox:checked + .button {
+      background-color: #6cbac5;
+    }
+  }
+  .row:nth-child(3) {
+    .checkbox:checked + .button {
+      background-color: #e4b82b;
+    }
+  }
+  .row:nth-child(4) {
+    .checkbox:checked + .button {
+      background-color: #ee8f31;
+    }
+  }
+  .row:nth-child(5) {
+    .checkbox:checked + .button {
+      background-color: #f65234;
+    }
+  }
+
+  .column {
+    &.highlight {
+      .row {
+        box-shadow: 0 0 2px rgba(0,0,0,.5);
+      }
+      .button {
+        background-color: #fff;
+        opacity: .6;
+      }
+    }
+  }
+}
+
+.playBtn {
+  cursor: pointer;
+}
