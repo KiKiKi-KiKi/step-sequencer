@@ -66,7 +66,9 @@ module.exports = {
   devServer: {
     port: 3000,
     open: true,
-    contentBase: path.resolve(__dirname, './public'),
-    watchContentBase: true,
+    static: {
+      directory: path.resolve(__dirname, './public'),
+      watch: true,
+    },
   },
 }
