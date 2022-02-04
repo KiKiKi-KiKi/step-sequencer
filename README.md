@@ -1,6 +1,8 @@
 # Tone.js example
 
-[Step Sequencer](https://tonejs.github.io/examples/stepSequencer.html)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/7d970759-580f-4941-a577-0be39faf7f9b/deploy-status)](https://app.netlify.com/sites/tonejs-step-sequencer/deploys)
+
+APP sample: [tonejs-step-sequencer sample app](https://tonejs-step-sequencer.netlify.app/)
 
 ## setup
 
