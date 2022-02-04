@@ -5,13 +5,30 @@ import $ from 'jquery';
 const SEQUENCER_DOM_ID = 'stepSequencer';
 const SEQUENCER_STEP_CLASS = 'column';
 
-const PAD_COLS = 8;
+const PAD_COLS = 10;
 const PAD_ROWS = 5;
-const SCORE_MAP = Array.from({ length: PAD_COLS }, (_) => ({ code: Array(PAD_ROWS).fill(null) }));
 
 const DEFAULT_BPM = 120;
 const BASE_BEAT = '16n';
 const NOTES = ['E4', 'D4', 'G4', 'B4', 'C5'].reverse();
+
+const STATE = {
+  PAD_COLS,
+  PAD_ROWS,
+  BEAT: BASE_BEAT,
+  BPM: DEFAULT_BPM,
+  NOTES,
+};
+
+const getPAD = () => ({cols: STATE.PAD_COLS, rows: STATE.PAD_ROWS});
+const getBeat = () => STATE.BEAT;
+const getBPM = () => STATE.BPM;
+const getNotes = () => STATE.NOTES;
+const getNoteByIndex = (index) => STATE.NOTES[index];
+
+const setStateBPM = (bpm) => {
+  STATE.BPM = bpm;
+}
 
 // Synthesizer
 let syn;
@@ -22,7 +39,7 @@ let sequence;
 function soundCode(time, { code }) {
   const note = code.filter(Boolean);
   if (note.length) {
-    syn.triggerAttackRelease(note, BASE_BEAT);
+    syn.triggerAttackRelease(note, getBeat());
   }
 }
 
@@ -32,20 +49,26 @@ function setNoteToSequence({ x, y, note }) {
 }
 
 function setupSequence() {
-  syn = new PolySynth(PAD_ROWS).toMaster();
-  sequence = new Sequence(soundCode, SCORE_MAP, BASE_BEAT).start();
+  const {cols, rows} = getPAD();
+  const scoreMap = Array.from({ length: cols }, (_) => ({ code: Array(rows).fill(null) }));
+  syn = new PolySynth(rows).toMaster();
+  sequence = new Sequence(soundCode, scoreMap, getBeat()).start();
   // indefinitely loop
   sequence.loop = true;
 }
 
 function setBPM(bpm = DEFAULT_BPM) {
   Transport.bpm.value = bpm;
+  setStateBPM(bpm);
 }
 
 function playPadEventInit(onUpdatePlayer) {
+  const { cols } = getPAD();
+  const beat = getBeat();
   let count = 0;
   let time = 0;
   let first = true;
+
   Transport.scheduleRepeat((now) => {
     if (first) {
       time = now;
@@ -54,11 +77,11 @@ function playPadEventInit(onUpdatePlayer) {
     const elapsed = now - time;
     onUpdatePlayer(count, elapsed);
     count += 1;
-    if (count >= PAD_COLS) {
+    if (count >= cols) {
       count = 0;
       time = now;
     }
-  }, BASE_BEAT);
+  }, beat);
 
   return {
     reset() {
@@ -75,12 +98,14 @@ const PAT_TEMPLATE = `<label class="row">
 </label>`;
 
 function createStepSequencer() {
+  const {cols, rows} = getPAD();
   const $container = document.getElementById(SEQUENCER_DOM_ID);
   const $fragment = document.createDocumentFragment();
-  Array.from({length: PAD_COLS}, (_) => {
+
+  Array.from({length: cols}, (_) => {
     const $row = document.createElement('div');
     $row.className = SEQUENCER_STEP_CLASS;
-    $row.innerHTML = Array(PAD_ROWS).fill(null).reduce((html, _) => {
+    $row.innerHTML = Array(rows).fill(null).reduce((html, _) => {
       return html += PAT_TEMPLATE;
     }, '');
     $fragment.appendChild($row);
@@ -111,6 +136,7 @@ function updatePlayerInit() {
 
 function padButtonsInit() {
   const $pad = $(`#${SEQUENCER_DOM_ID}`);
+
   $pad.find(`.${SEQUENCER_STEP_CLASS}`).each((x, elm) => {
     $(elm).find('.row').each((y, pad) => {
       const $pad = $(pad).find('.checkbox');
@@ -118,7 +144,7 @@ function padButtonsInit() {
       $pad.on('change', (e) => {
         const checked = e.target.checked;
         const { x, y } = $.data(e.target, 'pos');
-        const note = checked ? NOTES[y] : null;
+        const note = checked ? getNoteByIndex(y) : null;
         setNoteToSequence({ x, y, note });
       });
     });
