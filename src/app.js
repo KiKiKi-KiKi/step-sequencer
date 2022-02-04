@@ -7,7 +7,7 @@ const PAD_ROWS = 5;
 const SCORE_MAP = Array.from({ length: PAD_COLS }, (_) => ({ code: Array(PAD_ROWS).fill(null) }));
 
 const DEFAULT_BPM = 120;
-const BASE_BEATE = '16n';
+const BASE_BEAT = '16n';
 const NOTES = ['E4', 'D4', 'G4', 'B4', 'C5'].reverse();
 
 // Synthesizer
@@ -19,7 +19,7 @@ let sequence;
 function soundCode(time, { code }) {
   const note = code.filter(Boolean);
   if (note.length) {
-    syn.triggerAttackRelease(note, BASE_BEATE);
+    syn.triggerAttackRelease(note, BASE_BEAT);
   }
 }
 
@@ -30,7 +30,7 @@ function setNoteToSequence({ x, y, note }) {
 
 function setupSequence() {
   syn = new PolySynth(PAD_ROWS).toMaster();
-  sequence = new Sequence(soundCode, SCORE_MAP, BASE_BEATE).start();
+  sequence = new Sequence(soundCode, SCORE_MAP, BASE_BEAT).start();
   // indefinitely loop
   sequence.loop = true;
 }
@@ -55,7 +55,7 @@ function playPadEventInit(onUpdatePlayer) {
       count = 0;
       time = now;
     }
-  }, BASE_BEATE);
+  }, BASE_BEAT);
 
   return {
     reset() {
