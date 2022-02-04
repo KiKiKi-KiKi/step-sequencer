@@ -20,7 +20,7 @@ const STATE = {
   NOTES,
 };
 
-const getPAD = () => ({cols: STATE.PAD_COLS, rows: STATE.PAD_ROWS});
+const getPAD = () => ({ cols: STATE.PAD_COLS, rows: STATE.PAD_ROWS });
 const getBeat = () => STATE.BEAT;
 const getBPM = () => STATE.BPM;
 const getNotes = () => STATE.NOTES;
@@ -28,7 +28,7 @@ const getNoteByIndex = (index) => STATE.NOTES[index];
 
 const setStateBPM = (bpm) => {
   STATE.BPM = bpm;
-}
+};
 
 // Synthesizer
 let syn;
@@ -49,8 +49,10 @@ function setNoteToSequence({ x, y, note }) {
 }
 
 function setupSequence() {
-  const {cols, rows} = getPAD();
-  const scoreMap = Array.from({ length: cols }, (_) => ({ code: Array(rows).fill(null) }));
+  const { cols, rows } = getPAD();
+  const scoreMap = Array.from({ length: cols }, (_) => ({
+    code: Array(rows).fill(null),
+  }));
   syn = new PolySynth(rows).toMaster();
   sequence = new Sequence(soundCode, scoreMap, getBeat()).start();
   // indefinitely loop
@@ -88,8 +90,8 @@ function playPadEventInit(onUpdatePlayer) {
       count = 0;
       time = 0;
       first = true;
-    }
-  }
+    },
+  };
 }
 
 const PAT_TEMPLATE = `<label class="row">
@@ -98,25 +100,31 @@ const PAT_TEMPLATE = `<label class="row">
 </label>`;
 
 function createStepSequencer() {
-  const {cols, rows} = getPAD();
+  const { cols, rows } = getPAD();
   const $container = document.getElementById(SEQUENCER_DOM_ID);
   const $fragment = document.createDocumentFragment();
 
-  Array.from({length: cols}, (_) => {
+  Array.from({ length: cols }, (_) => {
     const $row = document.createElement('div');
     $row.className = SEQUENCER_STEP_CLASS;
-    $row.innerHTML = Array(rows).fill(null).reduce((html, _) => {
-      return html += PAT_TEMPLATE;
-    }, '');
+    $row.innerHTML = Array(rows)
+      .fill(null)
+      .reduce((html, _) => {
+        return (html += PAT_TEMPLATE);
+      }, '');
     $fragment.appendChild($row);
-  })
+  });
 
   $container.appendChild($fragment);
 }
 
 function updatePlayerInit() {
   const timer = document.getElementById('time');
-  const padColumns = [...document.getElementById(SEQUENCER_DOM_ID).querySelectorAll(`.${SEQUENCER_STEP_CLASS}`)];
+  const padColumns = [
+    ...document
+      .getElementById(SEQUENCER_DOM_ID)
+      .querySelectorAll(`.${SEQUENCER_STEP_CLASS}`),
+  ];
 
   let prevIndex = 0;
   return {
@@ -130,24 +138,26 @@ function updatePlayerInit() {
       padColumns[prevIndex].classList.remove('highlight');
       prevIndex = 0;
       timer.textContent = '0:00';
-    }
-  }
+    },
+  };
 }
 
 function padButtonsInit() {
-  const $pad = $(`#${SEQUENCER_DOM_ID}`);
+  const $sequencer = $(`#${SEQUENCER_DOM_ID}`);
 
-  $pad.find(`.${SEQUENCER_STEP_CLASS}`).each((x, elm) => {
-    $(elm).find('.row').each((y, pad) => {
-      const $pad = $(pad).find('.checkbox');
-      $.data($pad[0], 'pos', { x, y });
-      $pad.on('change', (e) => {
-        const checked = e.target.checked;
-        const { x, y } = $.data(e.target, 'pos');
-        const note = checked ? getNoteByIndex(y) : null;
-        setNoteToSequence({ x, y, note });
+  $sequencer.find(`.${SEQUENCER_STEP_CLASS}`).each((x, elm) => {
+    $(elm)
+      .find('.row')
+      .each((y, pad) => {
+        const $pad = $(pad).find('.checkbox');
+        $.data($pad[0], 'pos', { x, y });
+        $pad.on('change', (e) => {
+          const checked = e.target.checked;
+          const { x, y } = $.data(e.target, 'pos');
+          const note = checked ? getNoteByIndex(y) : null;
+          setNoteToSequence({ x, y, note });
+        });
       });
-    });
   });
 }
 
@@ -158,7 +168,7 @@ function bpmControllerInit() {
 
   const setLabel = (bpm) => {
     label.textContent = bpm;
-  }
+  };
 
   $bpmController.on('change.bpm', (e) => {
     const bpm = e.currentTarget.value;
@@ -168,14 +178,14 @@ function bpmControllerInit() {
 
   $bpmController.on('input.bpm', (e) => {
     setLabel(e.currentTarget.value);
-  })
+  });
 
   return {
     reset() {
       document.getElementById('bpm').value = DEFAULT_BPM;
       document.getElementById('bpmLabel').textContent = DEFAULT_BPM;
       setBPM(DEFAULT_BPM);
-    }
+    },
   };
 }
 
