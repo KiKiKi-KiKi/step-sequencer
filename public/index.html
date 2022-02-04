@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Step Sequencer | Tone.js test</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Step Sequencer | Tone.js test</title>
-</head>
-
-<body>
-  <div class="container">
-    <h1>Step Sequencer</h1>
-    <div class="controller">
-      <div>
-        <button id="playBtn" class="playBtn">START</button>
-        <time id="time" class="time"></time>
+  <body>
+    <div class="container">
+      <h1>Step Sequencer</h1>
+      <div class="controller">
+        <div class="controlContainer">
+          <button id="playBtn" class="playBtn">START</button>
+          <time id="time" class="time"></time>
+        </div>
+        <div class="controlContainer bpmController align-r">
+          <label class="label">BPM</label>
+          <input id="bpm" class="bpmRange" type="range" max="200" min="60" />
+          <spam id="bpmLabel" class="bpmLabel"></spam>
+        </div>
       </div>
-      <div class="bpmController align-r">
-        <label class="label">BPM</label>
-        <input id="bpm" class="bpmRange" type="range" max="200" min="60" />
-        <spam id="bpmLabel" class="bpmLabel"></spam>
+      <div id="stepSequencer" class="stepSequencer"></div>
+      <div class="controller controllerBottom">
+        <div class="controlContainer">
+          <button id="resetBtn" class="resetBtn">RESET</button>
+        </div>
       </div>
     </div>
-    <div id="stepSequencer" class="stepSequencer"></div>
-  </div>
-</body>
-
+  </body>
 </html>

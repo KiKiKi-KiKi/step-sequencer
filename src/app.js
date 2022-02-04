@@ -5,7 +5,7 @@ import $ from 'jquery';
 const SEQUENCER_DOM_ID = 'stepSequencer';
 const SEQUENCER_STEP_CLASS = 'column';
 
-const PAD_COLS = 10;
+const PAD_COLS = 8;
 const PAD_ROWS = 5;
 
 const DEFAULT_BPM = 120;
@@ -18,6 +18,7 @@ const STATE = {
   BEAT: BASE_BEAT,
   BPM: DEFAULT_BPM,
   NOTES,
+  ON_PLAY: false,
 };
 
 const getPAD = () => ({ cols: STATE.PAD_COLS, rows: STATE.PAD_ROWS });
@@ -25,9 +26,18 @@ const getBeat = () => STATE.BEAT;
 const getBPM = () => STATE.BPM;
 const getNotes = () => STATE.NOTES;
 const getNoteByIndex = (index) => STATE.NOTES[index];
+const getOnPlay = () => STATE.ON_PLAY;
 
 const setStateBPM = (bpm) => {
   STATE.BPM = bpm;
+};
+
+const setStateOnPlay = (isPlay) => {
+  STATE.ON_PLAY = isPlay;
+};
+
+const toggleOnPlay = () => {
+  setStateOnPlay(!STATE.ON_PLAY);
 };
 
 // Synthesizer
@@ -135,7 +145,9 @@ function updatePlayerInit() {
       prevIndex = index;
     },
     reset() {
-      padColumns[prevIndex].classList.remove('highlight');
+      padColumns.map((col) => {
+        col.classList.remove('highlight');
+      });
       prevIndex = 0;
       timer.textContent = '0:00';
     },
@@ -151,12 +163,27 @@ function padButtonsInit() {
       .each((y, pad) => {
         const $pad = $(pad).find('.checkbox');
         $.data($pad[0], 'pos', { x, y });
-        $pad.on('change', (e) => {
+        $pad.on('change.togglePad', (e) => {
           const checked = e.target.checked;
           const { x, y } = $.data(e.target, 'pos');
           const note = checked ? getNoteByIndex(y) : null;
           setNoteToSequence({ x, y, note });
         });
+      });
+  });
+}
+
+function resetPadButtons() {
+  const $sequencer = $(`#${SEQUENCER_DOM_ID}`);
+
+  $sequencer.find(`.${SEQUENCER_STEP_CLASS}`).each((x, elm) => {
+    $(elm)
+      .find('.row')
+      .each((y, pad) => {
+        const $pad = $(pad).find('.checkbox');
+        // $pad.off('change.togglePad');
+        $pad.prop('checked', false);
+        setNoteToSequence({ x, y, note: null });
       });
   });
 }
@@ -190,11 +217,11 @@ function bpmControllerInit() {
 }
 
 function playBtnInit({ reset }) {
-  let onPlay = false;
   const label = ['STOP', 'PLAY'];
   const $playBtn = $('#playBtn');
 
   $playBtn.on('click.onPlay', () => {
+    const onPlay = getOnPlay();
     if (onPlay) {
       Transport.stop();
       reset();
@@ -202,7 +229,18 @@ function playBtnInit({ reset }) {
       Transport.start();
     }
     $playBtn[0].textContent = label[onPlay - 0];
-    onPlay = !onPlay;
+    toggleOnPlay();
+  });
+}
+
+function resetBtnInit({ reset }) {
+  const $resetBtn = $('#resetBtn');
+
+  $resetBtn.on('click.onRest', () => {
+    Transport.stop();
+    setStateOnPlay(false);
+    $('#playBtn')[0].textContent = 'START';
+    reset();
   });
 }
 
@@ -211,15 +249,24 @@ function init() {
 
   const { update, reset: PlayerReset } = updatePlayerInit();
   const { reset: PlayCountReset } = playPadEventInit(update);
+  setupSequence();
+  padButtonsInit();
+  const { reset: bpmReset } = bpmControllerInit();
+
   const onReset = () => {
     PlayerReset();
     PlayCountReset();
   };
-  setupSequence();
 
-  padButtonsInit();
-  bpmControllerInit();
+  const onDestroy = () => {
+    bpmReset();
+    PlayerReset();
+    PlayCountReset();
+    resetPadButtons();
+  };
+
   playBtnInit({ reset: onReset });
+  resetBtnInit({ reset: onDestroy });
   onReset();
 }
 init();

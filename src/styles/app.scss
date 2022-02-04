@@ -1,4 +1,4 @@
-@import "~normalize.css/normalize.css";
+@import '~normalize.css/normalize.css';
 
 * {
   box-sizing: border-box;
@@ -18,18 +18,6 @@ h1 {
   font-size: 1.8rem;
   text-align: center;
   margin-bottom: 1rem;
-}
-
-.controller {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: .5rem;
-}
-
-.time {
-  display: inline-block;
-  text-align: right;
-  width: 3.5rem;
 }
 
 .stepSequencer {
@@ -54,7 +42,7 @@ h1 {
     display: block;
     background: #f1f1f1;
     border: 1px solid transparent;
-    border-radius: .2em;
+    border-radius: 0.2em;
     width: 100%;
     height: 100%;
   }
@@ -88,18 +76,43 @@ h1 {
   .column {
     &.highlight {
       .row {
-        box-shadow: 0 0 2px rgba(0,0,0,.5);
+        box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
       }
       .button {
         background-color: #fff;
-        opacity: .6;
+        opacity: 0.6;
       }
     }
   }
 }
 
-.playBtn {
+.controller {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+}
+
+.controllerBottom {
+  margin-top: 1rem;
+  flex-direction: row-reverse;
+}
+
+.controlContainer {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.playBtn,
+.resetBtn {
   cursor: pointer;
+}
+
+.time {
+  display: inline-block;
+  text-align: right;
+  width: 3.5rem;
 }
 
 .bpmController {
