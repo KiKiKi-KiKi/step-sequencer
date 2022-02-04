@@ -2,6 +2,9 @@ import './styles/app';
 import { PolySynth, Sequence, Transport } from 'tone';
 import $ from 'jquery';
 
+const SEQUENCER_DOM_ID = 'stepSequencer';
+const SEQUENCER_STEP_CLASS = 'column';
+
 const PAD_COLS = 8;
 const PAD_ROWS = 5;
 const SCORE_MAP = Array.from({ length: PAD_COLS }, (_) => ({ code: Array(PAD_ROWS).fill(null) }));
@@ -66,9 +69,29 @@ function playPadEventInit(onUpdatePlayer) {
   }
 }
 
+const PAT_TEMPLATE = `<label class="row">
+<input class="checkbox" type="checkbox">
+<span class="button"></span>
+</label>`;
+
+function createStepSequencer() {
+  const $container = document.getElementById(SEQUENCER_DOM_ID);
+  const $fragment = document.createDocumentFragment();
+  Array.from({length: PAD_COLS}, (_) => {
+    const $row = document.createElement('div');
+    $row.className = SEQUENCER_STEP_CLASS;
+    $row.innerHTML = Array(PAD_ROWS).fill(null).reduce((html, _) => {
+      return html += PAT_TEMPLATE;
+    }, '');
+    $fragment.appendChild($row);
+  })
+
+  $container.appendChild($fragment);
+}
+
 function updatePlayerInit() {
   const timer = document.getElementById('time');
-  const padColumns = [...document.getElementById('stepSequencer').querySelectorAll('.column')];
+  const padColumns = [...document.getElementById(SEQUENCER_DOM_ID).querySelectorAll(`.${SEQUENCER_STEP_CLASS}`)];
 
   let prevIndex = 0;
   return {
@@ -87,8 +110,8 @@ function updatePlayerInit() {
 }
 
 function padButtonsInit() {
-  const $pad = $('#stepSequencer');
-  $pad.find('.column').each((x, elm) => {
+  const $pad = $(`#${SEQUENCER_DOM_ID}`);
+  $pad.find(`.${SEQUENCER_STEP_CLASS}`).each((x, elm) => {
     $(elm).find('.row').each((y, pad) => {
       const $pad = $(pad).find('.checkbox');
       $.data($pad[0], 'pos', { x, y });
@@ -140,6 +163,8 @@ function playBtnInit({ reset }) {
 }
 
 function init() {
+  createStepSequencer();
+
   const { update, reset: PlayerReset } = updatePlayerInit();
   const { reset: PlayCountReset } = playPadEventInit(update);
   const onReset = () => {
