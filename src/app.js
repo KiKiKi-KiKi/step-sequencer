@@ -192,6 +192,7 @@ function bpmControllerInit() {
   const $bpmController = $('#bpm');
   const label = $('#bpmLabel')[0];
   label.textContent = DEFAULT_BPM;
+  $bpmController.val(DEFAULT_BPM);
 
   const setLabel = (bpm) => {
     label.textContent = bpm;
