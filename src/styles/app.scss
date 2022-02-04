@@ -10,7 +10,7 @@
 
 .container {
   margin: auto;
-  max-width: 3rem * 8 + 1rem;
+  max-width: max-content;
 }
 
 h1 {
@@ -100,4 +100,24 @@ h1 {
 
 .playBtn {
   cursor: pointer;
+}
+
+.bpmController {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label {
+  margin-right: 0.5rem;
+}
+
+.bpmRange {
+  cursor: pointer;
+}
+
+.bpmLabel {
+  display: block;
+  text-align: right;
+  width: 3rem;
 }
